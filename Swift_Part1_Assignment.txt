@@ -1,0 +1,268 @@
+================================================================================
+                        SWIFT PART 1 - ASSIGNMENT
+================================================================================
+
+================================================================================
+Q1. SETS IN SWIFT - MAIN FUNCTIONS
+================================================================================
+
+What is a Set?
+--------------
+A Set stores distinct values of the same type with NO defined order.
+  - Every value is unique. Inserting a duplicate does nothing.
+  - Order is not guaranteed (an Array keeps order, a Set does not).
+  - Elements must be Hashable (String, Int, Double, Bool are all Hashable).
+  - Lookups (contains) are very fast compared to searching an Array.
+  - JS comparison: similar to JavaScript's `Set`.
+
+Creating a Set
+--------------
+    var emptySet = Set<Int>()                      // empty set
+    var numbers: Set<Int> = [1, 2, 3, 3, 2]        // duplicates are ignored
+    let fromArray = Set([4, 5, 5, 6])              // create from an Array
+
+Main functions
+-----------------------------
+1. insert(_:)         
+Adds an element. Returns a tuple (inserted, memberAfterInsert).
+Eg: numbers.insert(10)
+
+2. remove(_:)         
+Removes an element. Returns the removed element, or nil if it was not in the set.
+Eg: numbers.remove(2)
+
+3. contains(_:)       
+Checks if an element is present (true / false).
+Eg: numbers.contains(3)       // true
+
+4. count              
+Number of elements in the set.
+Eg: numbers.count
+
+5. isEmpty            
+true if the set has no elements.
+Eg: numbers.isEmpty
+
+6. removeAll()        
+Removes every element.
+Eg: numbers.removeAll()
+
+7. sorted()           
+Returns a sorted ARRAY (sets themselves are unordered).
+Eg: numbers.sorted()
+
+8. first              
+Returns an arbitrary element (optional), or nil if empty.
+Eg: numbers.first
+
+
+================================================================================
+Q2. RANGE OPERATORS IN SWIFT
+================================================================================
+
+Range operators are shortcuts for expressing a range of values.
+
+1. Closed Range Operator  (a...b)
+   Includes BOTH a and b.
+
+       for i in 1...5 {
+           print(i)                    // 1 2 3 4 5
+       }
+
+2. Half-Open Range Operator  (a..<b)
+   Includes a, but NOT b. Very useful for arrays because the last index is
+   count - 1.
+
+       let names = ["Anna", "Brian", "Clara", "David"]
+       for i in 0..<names.count {
+           print(names[i])             // Anna Brian Clara David
+       }
+
+3. One-Sided Ranges  (a...   ...b   ..<b)
+   One side is left open, so the range goes as far as possible.
+
+       let fruits = ["Apple", "Banana", "Cherry", "Mango", "Orange"]
+       print(fruits[2...])             // ["Cherry", "Mango", "Orange"]
+       print(fruits[...2])             // ["Apple", "Banana", "Cherry"]
+       print(fruits[..<2])             // ["Apple", "Banana"]
+
+4. Checking if a value lies inside a range
+
+       let ageRange = 18...60
+       print(ageRange.contains(25))    // true
+       print(ageRange.contains(70))    // false
+
+5. Reverse loop using a range
+
+       for i in (1...5).reversed() {
+           print(i)                    // 5 4 3 2 1
+       }
+
+
+================================================================================
+Q3. COMBINE TWO STRINGS USING THE TERNARY OPERATOR
+================================================================================
+Code:
+-----
+    // Example 1: both empty
+    let string1 = ""
+    let string2 = ""
+    print((string1.isEmpty && string2.isEmpty) ? "none" : string1 + " " + string2)
+
+    // Example 2: both have text
+    let stringA = "first string"
+    let stringB = "and this is second string"
+    print((stringA.isEmpty && stringB.isEmpty) ? "none" : stringA + " " + stringB)
+
+Output:
+-------
+    none
+    first string and this is second string
+
+
+================================================================================
+Q4. PRINT ARRAY ELEMENTS WITHOUT REPEATING ANY VALUE
+================================================================================
+
+Code:
+-----
+    let elements = [6, 8, 1, 25, 65, 14, 2, 1, 6, 6, 8]
+
+    var seen = Set<Int>()          // values already printed
+    var uniqueElements: [Int] = [] // result, in original order
+
+    for element in elements {
+        // insert() returns inserted == true only if the value was NOT in the set
+        if seen.insert(element).inserted {
+            uniqueElements.append(element)
+        }
+    }
+
+    // Convert numbers to text, then join them with ", "
+    var output = ""
+    for (index, value) in uniqueElements.enumerated() {
+        if index > 0 {
+            output += ", "
+        }
+        output += String(value)
+    }
+    print(output)
+
+Output:
+-------
+    6, 8, 1, 25, 65, 14, 2
+
+================================================================================
+Q5. PRINT ODD AND EVEN NUMBERS SEPARATELY (USING SWITCH)
+================================================================================
+
+Code:
+-----
+    let elements = [6, 8, 1, 25, 65, 14, 2]
+
+    var oddNumbers: [Int] = []
+    var evenNumbers: [Int] = []
+
+    for number in elements {
+        switch number % 2 {
+        case 0:
+            evenNumbers.append(number)   // remainder 0 -> even
+        default:
+            oddNumbers.append(number)    // anything else -> odd
+        }
+    }
+
+    // Helper to join numbers with ", "
+    func joined(_ numbers: [Int]) -> String {
+        var text = ""
+        for (index, value) in numbers.enumerated() {
+            if index > 0 {
+                text += ", "
+            }
+            text += String(value)
+        }
+        return text
+    }
+
+    print("Odd numbers: \(joined(oddNumbers))")
+    print("Even numbers: \(joined(evenNumbers))")
+
+Output:
+-------
+    Odd numbers: 1, 25, 65
+    Even numbers: 6, 8, 14, 2
+
+
+================================================================================
+Q6. SUM OF A RANGE OR INSERT AN ELEMENT, BASED ON "x"
+================================================================================
+
+Code:
+-----
+    // Change x, y, z to test the different cases
+    let x = 0
+    let y = 2
+    let z = 4
+
+    // Must be `var` because case x == 1 modifies the array
+    var values = [2, 4, 1, 5, 1, 8, 6, 4]
+
+    switch x {
+    case 0:
+        // Make sure the indexes are valid before using them
+        if y >= 0 && z < values.count && y <= z {
+            var sum = 0
+            for index in y...z {          // closed range: y and z included
+                sum += values[index]
+            }
+            print("Sum of elements from index \(y) to \(z): \(sum)")
+        } else {
+            print("Invalid range: y and z must be valid indexes with y <= z")
+        }
+
+    case 1:
+        // insert at index y is allowed from 0 up to values.count
+        if y >= 0 && y <= values.count {
+            values.insert(z, at: y)
+            print(values)
+        } else {
+            print("Invalid index y for insert")
+        }
+
+    default:
+        print("x can only be 0 or 1")
+    }
+
+Output when x = 0, y = 2, z = 4 :
+---------------------------------
+    Sum of elements from index 2 to 4: 7
+
+    (elements are 1, 5, 1 -> 1 + 5 + 1 = 7)
+
+Output when x = 1, y = 2, z = 4 :
+---------------------------------
+    [2, 4, 4, 1, 5, 1, 8, 6, 4]
+
+
+================================================================================
+Q7. GROUP STRINGS BY FIRST LETTER (DICTIONARY) AND PRINT COUNTS
+================================================================================
+
+Code:
+-----
+    let names = ["Ranbir", "Ranveer", "Akshay", "Varun", "Abhishek", "Navneet"]
+    var groupedNames: [String: [String]] = [:]
+    for name in names {
+        let key = String(name.first!)
+        
+        if groupedNames[key] == nil {
+            groupedNames[key] = [name]
+        } else {
+            groupedNames[key]!.append(name)
+        }
+    }
+    print("Dictionary = \(groupedNames)")
+    print("Count of strings for each key:")
+    for (key, list) in groupedNames {
+        print("\(key): \(list.count)")
+    }
