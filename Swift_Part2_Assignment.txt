@@ -1,0 +1,310 @@
+================================================================================
+                        SWIFT PART 2 - ASSIGNMENT ANSWERS
+================================================================================
+
+Contents
+--------
+  Q1. Difference between struct and class
+  Q2. Sum of even and odd numbers in an array
+  Q3. Function "sum" with any number of parameters of any type
+  Q4. Function with 0, 1 or 2 string parameters
+  Q5. Array extension: moveElementToBackFromIndex
+  Q6. Access levels in Swift
+  Q7. Generic class Queue
+
+
+================================================================================
+Q1. DIFFERENCE BETWEEN STRUCT AND CLASS
+================================================================================
+
+Both struct and class let us create our own types with properties and
+functions. The main differences are:
+
+  1. Type: struct is a VALUE type, class is a REFERENCE type.
+       - Copying a struct creates a separate copy. Changing one copy does not
+         change the other.
+       - Copying a class variable only copies the reference. Both variables
+         point to the same object, so changing one changes the other.
+
+  2. Initializer: struct gets a memberwise initializer for free. For a class
+     we must write our own init().
+
+  3. Inheritance: a class can inherit from another class. A struct cannot.
+
+  4. Deinitializer: only a class can have deinit.
+
+  5. Type casting (is, as?, as!) with inheritance works only on classes.
+
+  6. let behaves differently: with a `let` struct, no property can be changed.
+     With a `let` class, the var properties can still be changed.
+
+Example:
+--------
+    struct PersonStruct {
+        var name: String
+    }
+    class PersonClass {
+        var name: String
+        init(name: String) {
+            self.name = name
+        }
+    }
+
+    var s1 = PersonStruct(name: "Amit")
+    var s2 = s1
+    s2.name = "Raj"
+    print(s1.name)       // Amit  (s1 not changed, it was copied)
+
+    let c1 = PersonClass(name: "Amit")
+    let c2 = c1
+    c2.name = "Raj"
+    print(c1.name)       // Raj   (c1 changed, both point to same object)
+
+
+================================================================================
+Q2. SUM OF EVEN NUMBERS AND SUM OF ODD NUMBERS
+================================================================================
+
+Code:
+-----
+    // Returns a tuple with two values: sum of evens and sum of odds
+    func sumOfEvenAndOdd(array: [Int]) -> (even: Int, odd: Int) {
+        var evenSum = 0
+        var oddSum = 0
+
+        for number in array {
+            if number % 2 == 0 {
+                evenSum += number
+            } else {
+                oddSum += number
+            }
+        }
+
+        return (evenSum, oddSum)
+    }
+
+    let result = sumOfEvenAndOdd(array: [1, 2, 3, 4, 5, 6])
+    print("Sum of even numbers: \(result.even)")
+    print("Sum of odd numbers: \(result.odd)")
+
+Output:
+-------
+    Sum of even numbers: 12
+    Sum of odd numbers: 9
+
+
+================================================================================
+Q3. FUNCTION "sum" - ANY NUMBER OF PARAMETERS OF ANY TYPE, RETURNS A STRING
+================================================================================
+
+Code:
+-----
+    // "Any..." means 0 or more values of any type
+    func sum(_ values: Any...) -> String {
+        var total = 0
+
+        for value in values {
+            if let text = value as? String {
+                // value is a String
+                if text == "" {
+                    total -= 10                       // rule a
+                } else if let number = Int(text), number > 0 {
+                    total += number                   // rule b
+                }
+                // any other string: add nothing (rule d)
+            } else if let number = value as? Int {
+                // value is an Int
+                if number == 0 {
+                    total -= 10                       // rule a
+                } else {
+                    total += number                   // rule c
+                }
+            }
+            // any other type (Double, Bool...): add nothing (rule d)
+        }
+
+        return String(total)
+    }
+
+    let result1 = sum("10", 10.8, 10, "a number", -2, "")
+    print(result1)
+
+    let result2 = sum("-6", "5", 2)
+    print(result2)
+
+    print(sum())            // no parameters
+
+Output:
+-------
+    8
+    7
+    0
+
+Step by step for the first example:
+-----------------------------------
+    "10"       -> positive number string  -> +10
+    10.8       -> Double, not Int         -> nothing
+    10         -> Int                     -> +10
+    "a number" -> not a number            -> nothing
+    -2         -> Int                     -> -2
+    ""         -> empty string            -> -10
+    Total = 10 + 10 - 2 - 10 = 8
+
+Second example:
+    "-6" is a negative number, so rule b does not apply -> nothing
+    "5" -> +5, 2 -> +2, Total = 7
+
+
+================================================================================
+Q4. FUNCTION WITH 0, 1 OR 2 STRING PARAMETERS
+================================================================================
+
+Code:
+-----
+    func joinStrings(_ first: String? = nil, _ second: String? = nil) -> String {
+        // nothing passed
+        if first == nil && second == nil {
+            return "none"
+        }
+
+        var result = ""
+
+        if let firstText = first {
+            result += firstText
+        }
+        if let secondText = second {
+            result += secondText
+        }
+
+        return result
+    }
+
+    print(joinStrings())
+    print(joinStrings("Hello"))
+    print(joinStrings("Hello", "World"))
+
+Output:
+-------
+    none
+    Hello
+    HelloWorld
+
+
+================================================================================
+Q5. ARRAY EXTENSION: moveElementToBackFromIndex
+================================================================================
+
+Code:
+-----
+    extension Array {
+        func moveElementToBackFromIndex(_ index: Int) -> [Element] {
+            var newArray = self          // copy, so the original is not changed
+
+            // if the index is not valid, return the array as it is
+            if index < 0 || index >= newArray.count {
+                return newArray
+            }
+
+            let element = newArray.remove(at: index)   // take the element out
+            newArray.append(element)                   // put it at the end
+            return newArray
+        }
+    }
+
+    let arr = [5, 2, 3, 4]
+    print(arr.moveElementToBackFromIndex(1))
+
+    let names = ["a", "b", "c"]
+    print(names.moveElementToBackFromIndex(0))
+
+Output:
+-------
+    [5, 3, 4, 2]
+    ["b", "c", "a"]
+
+
+================================================================================
+Q6. ACCESS LEVELS IN SWIFT
+================================================================================
+
+Access levels decide which parts of the code can use a class, struct,
+function or property. From most open to most restricted:
+
+  1. open
+       Most open level. Code in ANY module can use it, and can also subclass
+       it or override its methods. Works only for classes and class members.
+
+  2. public
+       Code in any module can use it, but other modules CANNOT subclass it or
+       override it.
+
+  3. internal
+       This is the DEFAULT. Usable anywhere inside the same module (app or
+       framework), but not from other modules.
+
+  4. fileprivate
+       Usable only inside the same source file.
+
+  5. private
+       Most restricted. Usable only inside the enclosing declaration (and its
+       extensions in the same file).
+
+Example:
+--------
+    open class Vehicle {                  // other modules can subclass this
+        open func start() { }             // other modules can override this
+        public var name = "Car"           // other modules can read/change this
+        var wheels = 4                    // internal (default), same module only
+        fileprivate var color = "Red"     // same file only
+        private var engineNumber = "E123" // inside Vehicle only
+    }
+
+    class Test {
+        func show() {
+            let v = Vehicle()
+            print(v.name)             // OK (public)
+            print(v.wheels)           // OK (internal, same module)
+            print(v.color)            // OK only if this is in the same file
+            // print(v.engineNumber)  // ERROR: private to Vehicle
+        }
+    }
+
+
+================================================================================
+Q7. GENERIC CLASS "Queue"
+================================================================================
+
+Code:
+-----
+    class Queue<T> {
+        var items: [T] = []             // array that holds elements of type T
+
+        // add an element of type T to the array
+        func add(_ item: T) {
+            items.append(item)
+        }
+
+        // return the size of the array
+        func size() -> Int {
+            return items.count
+        }
+    }
+
+    let x = Queue<String>()
+    x.add("Example")
+    x.add("Another")
+    print("Size of x: \(x.size())")
+    print(x.items)
+
+    let y = Queue<Int>()
+    y.add(22)
+    print("Size of y: \(y.size())")
+    print(y.items)
+
+Output:
+-------
+    Size of x: 2
+    ["Example", "Another"]
+    Size of y: 1
+    [22]
+
